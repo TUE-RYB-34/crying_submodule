@@ -4,17 +4,16 @@
 #include <libpynq.h>
 #include <time.h>
 
-#define CRYING_SM_ADDR        0x53U
-#define CRYING_SM_RMAP_SIZE   0x01U
 
+#define CRYING_SM_ADDR		0x53U
+
+#define CRYING_SM_RMAP_SIZE	0x01U
 uint32_t rmap[CRYING_SM_RMAP_SIZE] = {
 	0x0UL,		// crying level
 };
 
-#define CRYING_SM_LEVEL_REG   0x00U
+#define CRYING_SM_LEVEL_REG	0x00U
 
-display_t display;
-FontxFile fx;
 
 // buffer 1s of measurements
 #define ADC_BUFFER_SIZE 1000
@@ -26,6 +25,11 @@ uint32_t ADC_buffer[ADC_BUFFER_SIZE] = {};
 uint32_t ADC_smoothed[ADC_BUFFER_SIZE] = {};
 uint32_t crying_level = 0;
 
+
+display_t display;
+FontxFile fx;
+
+void write_to_screen(uint32_t crying_level);
 
 inline uint32_t rmoffset(const uint32_t a, const uint32_t min);
 void smooth(const uint32_t* src, uint32_t* dst, const uint32_t size, const uint8_t kernel_size);
@@ -41,6 +45,10 @@ int main(void) {
 	// pins
 	switchbox_set_pin(IO_AR_SCL, SWB_IIC0_SCL);
 	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
+
+	// init display
+    InitFontx(&fx, "../../fonts/ILGH24XB.FNT", "");
+    display_init(&display);
 
 	// I2C
 	iic_init(IIC0);
@@ -67,6 +75,7 @@ int main(void) {
 			rmap[CRYING_SM_LEVEL_REG] = crying_level;
 
 			// show result
+            write_to_screen(crying_level);
 			printf("\rcrying_level: %d", crying_level);
 			fflush(stdout);
 		}
@@ -76,6 +85,19 @@ int main(void) {
 	iic_destroy(IIC0);
 	pynq_destroy();
 	return EXIT_SUCCESS;
+}
+
+
+void write_to_screen(uint32_t crying_level) {
+    // Clear display
+    displayFillScreen(&display, RGB_BLACK);
+
+    int y = 20;
+
+    // Crying level
+    char crying_string[50];
+    snprintf(crying_string, sizeof(crying_string), "crying level: %lu", (unsigned long)crying_level);
+    displayDrawString(&display, &fx, 10, y, (uint8_t *)crying_string, RGB_GREEN);
 }
 
 
