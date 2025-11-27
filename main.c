@@ -4,16 +4,17 @@
 #include <libpynq.h>
 #include <time.h>
 
+#define CRYING_SM_ADDR        0x53U
+#define CRYING_SM_RMAP_SIZE   0x01U
 
-#define CRYING_SM_ADDR		0x53U
-
-#define CRYING_SM_RMAP_SIZE	0x01U
 uint32_t rmap[CRYING_SM_RMAP_SIZE] = {
 	0x0UL,		// crying level
 };
 
-#define CRYING_SM_LEVEL_REG	0x00U
+#define CRYING_SM_LEVEL_REG   0x00U
 
+display_t display;
+FontxFile fx;
 
 // buffer 1s of measurements
 #define ADC_BUFFER_SIZE 1000
