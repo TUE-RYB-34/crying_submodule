@@ -31,7 +31,7 @@ FontxFile fx;
 
 void write_to_screen(uint32_t crying_level);
 
-inline uint32_t rmoffset(const uint32_t a, const uint32_t min);
+uint32_t rmoffset(const uint32_t a, const uint32_t min);
 void smooth(const uint32_t* src, uint32_t* dst, const uint32_t size, const uint8_t kernel_size);
 uint32_t max(const uint32_t* buffer, const uint32_t size);
 
@@ -47,8 +47,8 @@ int main(void) {
 	switchbox_set_pin(IO_AR_SDA, SWB_IIC0_SDA);
 
 	// init display
-    InitFontx(&fx, "../../fonts/ILGH24XB.FNT", "");
-    display_init(&display);
+	InitFontx(&fx, "../../fonts/ILGH24XB.FNT", "");
+ 	display_init(&display);
 
 	// I2C
 	iic_init(IIC0);
@@ -76,7 +76,7 @@ int main(void) {
 
 			// show result
             write_to_screen(crying_level);
-			printf("\rcrying_level: %d", crying_level);
+			printf("\rcrying_level: %d    ", crying_level);
 			fflush(stdout);
 		}
 	}
@@ -100,9 +100,7 @@ void write_to_screen(uint32_t crying_level) {
     displayDrawString(&display, &fx, 10, y, (uint8_t *)crying_string, RGB_GREEN);
 }
 
-
-
-inline uint32_t rmoffset(const uint32_t a, const uint32_t min) {
+uint32_t rmoffset(const uint32_t a, const uint32_t min) {
 	return ((a > min) ? (a - min) : 0);
 }
 
@@ -112,8 +110,8 @@ void smooth(const uint32_t* src, uint32_t* dst, const uint32_t size, const uint8
 	uint32_t sum;
 	for (uint32_t i = 0; i < size; i++) {
 		sum = 0;
-		for (int32_t j = (i - kernel_runout); j < (i + kernel_runout); j++) {
-			if ((j >= 0) || (j < size)) { sum += src[j]; }
+		for (int32_t j = (i - kernel_runout); j < ((int32_t)(i + kernel_runout)); j++) {
+			if ((j >= 0) && (j < ((int32_t)size))) { sum += src[j]; }
 		}
 		dst[i] = (uint32_t)(((float)sum) / ((float)kernel_size));
 	}
